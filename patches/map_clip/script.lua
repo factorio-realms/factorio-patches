@@ -24,8 +24,8 @@ function map_clip_is_area_needed(surface, pos)
       return true
     end
   end
-  for _, p in pairs(game.players) do
-    if p.connected and p.surface.name == surface.name then
+  for _, p in pairs(game.connected_players) do
+    if p.surface.name == surface.name then
       local px = math.floor(p.position.x / 32)
       local py = math.floor(p.position.y / 32)
       if math.abs(px - pos.x) <= 3 and math.abs(py - pos.y) <= 3 then
