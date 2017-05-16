@@ -18,6 +18,10 @@ realm.patches.welcome.commands.welcome = function(e)
     print_back(e, {"patch-welcome.bad-command"})
     return
   end
+  if (e.argv[1] == "set" or e.argv[1] == "clear") and not e.by_admin then
+    print_back(e, {"patch-welcome.not-allowed"})
+    return
+  end
   if e.argv[1] == "set" then
     if not e.argv[2] then
       print_back(e, {"patch-welcome.bad-command"})
