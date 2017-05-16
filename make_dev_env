@@ -1,0 +1,64 @@
+#!/bin/bash
+
+set -e
+
+usage() {
+	echo "Usage: ./make_dev_env path-to-factorio-headless-package.zip"
+	echo ""
+	exit 1
+}
+
+gen_realm_lua() {
+	echo "require('locale_en')"
+	echo "require('pre-patches')"
+	echo ""
+	ls patch_*.lua | sed "s/\(.*\)\.lua/require('\1')/"
+	echo ""
+	echo "require('post-patches')"
+}
+
+link_locale() {
+	find ../../{framework,patches} -name "*.cfg" | grep locale | while read line; do
+		x=${line#*/locale/}
+		d=$(dirname locale/${x})
+		mkdir -p $d
+		ln -sf "../../$line" "locale/${x}"
+	done
+}
+
+if [ ! -f "factorio/bin/x64/factorio" ]; then
+	if [ -z "$1" ]; then
+		usage
+	fi
+	tar xf "$1"
+fi
+
+cd factorio
+if [ ! -d a ]; then
+	./bin/x64/factorio --create a.zip
+	unzip a.zip
+	rm a.zip
+fi
+
+cd a
+ln -sf ../../framework/pre-patches.lua .
+ln -sf ../../framework/post-patches.lua .
+
+ls ../../patches/*/script.lua | while read line; do
+	name=${line#*patches/}
+	name=${name%/*}
+	ln -sf "../../patches/$name/script.lua" "patch_${name}.lua"
+done
+
+gen_realm_lua > realm.lua
+
+if ! grep -q realm control.lua; then
+	echo >> control.lua
+	echo "require('realm')" >> control.lua
+fi
+
+link_locale
+
+../../scripts/locale_to_lua locale/en LOCALE_EN > locale_en.lua
+
+echo "all file updated"

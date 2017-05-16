@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "speed:"
+echo "    Add /speed command to game, allow player to change game speed"
+echo "    Options: none"

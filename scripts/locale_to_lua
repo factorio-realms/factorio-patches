@@ -1,0 +1,97 @@
+#!/usr/bin/env ruby
+
+require_relative "inifile"
+
+def usage
+  puts "./locale_to_lua path/to/locale/xx varname"
+  exit 1
+end
+
+def escape_lua_string str
+  str = str.to_s if str.class != String
+  e = str.gsub(/[\x00-\x1f\\"']/) do |x|
+    case x.ord
+    when 0x07; "\\a"
+    when 0x08; "\\b"
+    when 0x09; "\\t"
+    when 0x0a; "\\n"
+    when 0x0b; "\\v"
+    when 0x0c; "\\f"
+    when 0x0d; "\\r"
+    when 0x22; "\\\""
+    when 0x3f; "\\\'"
+    when 0x5c; "\\\\"
+    else
+      "\\x%.2x" % x.ord 
+    end
+  end
+  return ?" + e + ?"
+end
+
+def dump_lua fd, x, ind = ""
+  if x.is_a? Numeric
+    fd.write x.to_s
+  elsif x.is_a? String
+    fd.write escape_lua_string x
+  elsif x.is_a? Array
+    fd.write "{\n"
+    x.each_with_index do |v, i|
+      fd.write ind + "  "
+      dump_lua(fd, v, ind + "  ")
+      if i != x.length - 1
+        fd.write ",\n"
+      else
+        fd.write "\n"
+      end
+    end
+    fd.write "#{ind}}"
+  elsif x.is_a? Hash
+    fd.write "{\n"
+    x.each_with_index do |(k,v), i|
+      if k =~ /^[_a-zA-Z][_a-zA-Z0-9]*$/
+        fd.write "#{ind}  #{k} = "
+      else
+        fd.write "#{ind}  [#{escape_lua_string k}] = "
+      end
+      dump_lua(fd, v, ind + "  ")
+      if i != x.length - 1
+        fd.write ",\n"
+      else
+        fd.write "\n"
+      end
+    end
+    fd.write "#{ind}}"
+  elsif x == true
+    fd.write 'true'
+  elsif x == false
+    fd.write 'false'
+  elsif x == nil
+    fd.write 'nil'
+  else
+    raise 'unknown type'
+  end
+end
+
+def main
+  if ARGV.length != 2
+    usage
+  end
+  dir = ARGV[0]
+  files = Dir.glob(dir + '/*.cfg')
+  if files.length == 0
+    raise 'No language file'
+  end
+  entries = {}
+  files.each do |file|
+    cfg = IniFile.load(file)
+    cfg.each_section do |section|
+      cfg[section].each_pair do |key, val|
+        entries[section + '.' + key] = val
+      end
+    end
+  end
+  STDOUT.print "#{ARGV[1]} = "
+  dump_lua STDOUT, entries
+end
+
+main
