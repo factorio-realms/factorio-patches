@@ -183,6 +183,13 @@ function Queue.pop(q)
 end
 
 --------------------------------------------------------------------------------
+-- String utils
+
+function string.lines(self)
+  return string.gmatch(string.gsub(self, '\n*$', '\n'), '[^\n]*\n')
+end
+
+--------------------------------------------------------------------------------
 -- after all, hack script variable access
 realm.patches.hacker = {
   on_event = {}

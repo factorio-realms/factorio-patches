@@ -9,7 +9,6 @@ realm.patches.map_clip.on_init = function()
       guards_hash = {},
     }
   end
-  dump(global)
 end
 
 function map_clip_is_area_needed(surface, pos)
