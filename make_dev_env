@@ -52,9 +52,8 @@ done
 
 gen_realm_lua > realm.lua
 
-if ! grep -q realm control.lua; then
-	echo >> control.lua
-	echo "require('realm')" >> control.lua
+if ! grep -q 5bee6642 control.lua; then
+	sed -i '1 s/^/require("realm") -- 5bee6642\n\n/' control.lua
 fi
 
 link_locale

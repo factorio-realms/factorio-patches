@@ -1,4 +1,10 @@
--- utils
+realm = {
+  config = {},
+  patches = {},
+}
+
+--------------------------------------------------------------------------------
+-- debug utils
 
 function dump_to_string(o)
   if type(o) == 'table' then
@@ -18,8 +24,20 @@ function dump_to_string(o)
 end
 
 function dump(o)
-  game.print(dump_to_string(o))
+  print(dump_to_string(o))
+  if game then
+    game.print(dump_to_string(o))
+  end
 end
+
+function debug(x)
+  if realm.config.debug then
+    dump(x)
+  end
+end
+
+--------------------------------------------------------------------------------
+-- argument deal utils
 
 CONVERT_ARGUMENTS_STATES_MAP = {
   -- nil output self, -1 new word, >= 0 to another status
@@ -110,9 +128,74 @@ function print_to(player, x)
   end
 end
 
--- framework
+--------------------------------------------------------------------------------
+-- Basic data structure
 
-realm = {
-  patches = {}
+Queue = {}
+
+-- global do not support meta, so all method is not attached to instances
+function Queue.new()
+  local q = {}
+  q.first = 0
+  q.last = 0
+  return q
+end
+
+function Queue.from_array(a)
+  local q = {}
+
+  for _, v in ipairs(a) do
+    table.insert(q, v)
+  end
+  q.first = 0
+  q.last = #q
+  return q
+end
+
+function Queue.from_iter(iter)
+  local q = {}
+
+  for x in iter do
+    table.insert(q, x)
+  end
+  q.first = 0
+  q.last = #q
+  return q
+end
+
+function Queue.length(q)
+  return q.last - q.first
+end
+
+function Queue.push(q, x)
+  q[q.last] = x
+  q.last = q.last + 1
+end
+
+function Queue.pop(q)
+  if q.last > q.first then
+    local x = q[q.first]
+    q[q.first] = nil
+    q.first = q.first + 1
+    return x
+  end
+  return nil
+end
+
+--------------------------------------------------------------------------------
+-- after all, hack script variable access
+realm.patches.hacker = {
+  on_event = {}
 }
 
+script_orig = script
+
+script = {
+  on_init = script_orig.on_init,  -- in fact, we can never receive this
+  on_load = script_orig.on_load,
+  on_configuration_changed = function(f) realm.patches.hacker.on_configuration_changed = f end,
+  on_event = function(e, f) realm.patches.hacker.on_event[e] = f; remount_event(e) end,
+  generate_event_name = script_orig.generate_event_name,
+  get_event_handler = function(e) return realm.patches.hacker.on_event[e] end,
+  raise_event = script_orig.raise_event,
+}
