@@ -106,10 +106,10 @@ function mount_commands()
           end
           if e.player_index ~= nil then
             e.by_admin = game.players[e.player_index].admin
-            e.by_console = false
+            e.commander = game.players[e.player_index].name
           else
             e.by_admin = true
-            e.by_console = true
+            e.commander = "<server>"
           end
           cmds[e.name].impl(e)
         end)
