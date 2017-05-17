@@ -21,6 +21,9 @@ function multiline_editor_create_line(parent, str)
 end
 
 function multiline_editor_show(p, opt, callback)
+  if p.gui.center['multiline-editor'] then
+    p.gui.center['multiline-editor'].destroy()
+  end
   local editor = p.gui.center.add{type='frame', name='multiline-editor'}
   local layout = editor.add{type='table', name='layout', direction='vertical', colspan=1}
   local title = layout.add{type='label', name='title', caption=opt.caption}
