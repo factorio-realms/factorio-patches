@@ -34,7 +34,7 @@ function announcement_show_editor(player)
   if not multiline_editor_show then
     print_to(player, {"patch-announcement.multiline-editor-required"})
   end
-  multiline_editor_show(player, {text=global.announcement}, function(e)
+  multiline_editor_show(player, {text=global.announcement, caption={"patch-announcement.title"}}, function(e)
     global.announcement = e.text
     announcement_update_gui()
     if global.announcement and global.announcement ~= "" then
@@ -56,8 +56,16 @@ end
 function realm.patches.announcement.on_gui_click(e)
   local player = game.players[e.player_index]
   if announcement_find_ancestor(e.element, 'announcement') then
+    local body = announcement_find_ancestor(e.element, 'body')
     local ann = announcement_find_ancestor(e.element, 'announcement')
-    ann.layout.body.style.visible = not ann.layout.body.style.visible
+    if body and player.admin then
+      announcement_show_editor(player)
+    else
+      if ann.layout.body.style.visible == nil then
+        ann.layout.body.style.visible = true
+      end
+      ann.layout.body.style.visible = not ann.layout.body.style.visible
+    end
   end
 end
 
