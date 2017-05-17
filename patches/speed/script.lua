@@ -5,12 +5,13 @@ realm.patches.speed = {
 realm.patches.speed.commands.speed = function(e)
   if not e.by_admin then
     print_back(e, {"patch-speed.deny"})
+    return
   end
   local speed = tonumber(e.argv[1])
   if not speed then
     print_back(e, {"patch-speed.invalid"})
   end
-  if not speed or speed < 0.05 or speed > 10 then
+  if not speed or speed < 0.05 or speed > 3 then
     print_back(e, {"patch-speed.out-of-range"})
     return
   end
