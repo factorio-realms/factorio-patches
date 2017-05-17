@@ -16,10 +16,10 @@ function guest_get_guest_permission_group()
     table.insert(perms, perm)
   end
   table.sort(perms)
-  debug("total perms: " .. #perms)
-  for i = 1, math.min(#perms, 10000) do
+  -- print("total perms: " .. #perms)
+  for i = 1, math.min(#perms, 2000) do
     group.set_allows_action(defines.input_action[perms[i]], false)
-    debug("guest disable: " .. perms[i])
+    -- print("guest disable: " .. perms[i])
   end
 
   group.set_allows_action(defines.input_action.start_walking, true)
@@ -61,6 +61,8 @@ function guest_get_guest_permission_group()
   group.set_allows_action(defines.input_action.add_permission_group, true)
   group.set_allows_action(defines.input_action.delete_permission_group, true)
   group.set_allows_action(defines.input_action.edit_permission_group, true)
+  -- drinving
+  group.set_allows_action(defines.input_action.toggle_driving, true)
   return group
 end
 
