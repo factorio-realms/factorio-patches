@@ -50,11 +50,14 @@ function clock_update_gui()
     local root = mod_gui and mod_gui.get_frame_flow(p) or p.gui.left
     if not root.clock then
       local clock = root.add{type='frame', name='clock'}
-      clock.style.bottom_padding=2
-      local label = clock.add{type='label', name='label'}
+      clock.style.top_padding = 4
+      clock.style.bottom_padding = 4
+      clock.style.minimal_width = 200
+      local layout = clock.add{type='table', name='layout', colspan=1}
+      local label = layout.add{type='label', name='label'}
       label.style = 'caption_label_style'
     end
-    local label = root.clock.label
+    local label = root.clock.layout.label
     label.caption = str
   end
 end
