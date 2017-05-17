@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+./make_dev_env "$@"
+
+if [ -d ~/.factorio/saves ]; then 
+	ln -sfv `readlink -f ./factorio/a` ~/.factorio/saves/factorio-patches-dev
+fi
+
