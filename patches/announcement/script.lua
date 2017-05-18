@@ -79,7 +79,7 @@ function realm.patches.announcement.commands.announcement(e)
     global.announcement = e.argv[2]
     announcement_update_gui()
     if global.announcement ~= "" then
-      game.print(e, {"patch-announcement.updated", e.commander})
+      game.print({"patch-announcement.updated", e.commander})
     end
   elseif e.argv[1] == "clear" then
     global.announcement = nil
