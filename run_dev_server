@@ -5,4 +5,4 @@ set -e
 ./make_dev_env "$@"
 
 cd factorio
-./bin/x64/factorio --start-server a --port 40000
+./bin/x64/factorio --start-server a --port 12345
