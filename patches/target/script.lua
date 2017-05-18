@@ -24,6 +24,7 @@ function target_update_gui()
         root.target.layout.body.destroy()
       end
       local body = root.target.layout.add{type='table', name='body', colspan=1}
+      body.style.bottom_padding = 5
       for _, target in pairs(force_targets) do
         local item = body.add{type='flow', direction='horizontal'}
         local icon = item.add{type='sprite-button', name='icon', sprite=target_get_icon(target)}
@@ -230,6 +231,9 @@ function realm.patches.target.commands.target(e)
     table.remove(global.targets[force.name], index)
 
     target_update_gui()
+  else
+    print_back(e, {"patch-target.bad-command"})
+    return
   end
 
   if target_has_target() then

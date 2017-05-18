@@ -22,6 +22,7 @@ function announcement_update_gui()
         root.announcement.layout.body.destroy()
       end
       local body = root.announcement.layout.add{type='table', name='body', colspan=1}
+      body.style.bottom_padding = 4
       for str in global.announcement:lines() do
         str = str:gsub('@NAME@', p.name)
         body.add{type='label', caption=str}
