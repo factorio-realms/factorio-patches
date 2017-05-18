@@ -30,6 +30,17 @@ realm.framework.on_tick = function(e)
 end
 
 realm.framework.on_tick_real = function(e)
+  if global.realm.next_tick then
+    for _, impl in pairs(global.realm.next_tick) do
+      impl()
+    end
+    global.realm.next_tick = nil
+  end
+end
+
+function realm.next_tick(cb)
+  global.realm.next_tick = global.realm.next_tick or {}
+  table.insert(global.realm.next_tick, cb)
 end
 
 EVENT_NAME_BY_ID = {}
