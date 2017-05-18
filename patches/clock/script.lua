@@ -59,7 +59,7 @@ function clock_update_gui()
       local clock = root.add{type='frame', name='clock'}
       clock.style.top_padding = 4
       clock.style.bottom_padding = 4
-      clock.style.minimal_width = 200
+      clock.style.minimal_width = 230
       local layout = clock.add{type='table', name='layout', colspan=1}
       local label = layout.add{type='label', name='label'}
       label.style = 'caption_label_style'

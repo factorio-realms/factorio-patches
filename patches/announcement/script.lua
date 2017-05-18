@@ -7,7 +7,7 @@ function announcement_update_gui()
     local root = mod_gui and mod_gui.get_frame_flow(p) or p.gui.left
     if not root.announcement then
       local announcement = root.add{type='frame', name='announcement'}
-      announcement.style.minimal_width = 200
+      announcement.style.minimal_width = 230
       announcement.style.top_padding = 4
       announcement.style.bottom_padding = 4
       local layout = announcement.add{type='table', name='layout', colspan=1}
