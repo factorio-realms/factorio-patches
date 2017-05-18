@@ -255,3 +255,24 @@ realm.patches.target.commands['help-target'] = function(e)
   print_back(e, {'patch-target.help-12'})
   print_back(e, {'patch-target.help-13'})
 end
+
+function target_find_ancestor(e, name)
+  while e do
+    if e.name == name then
+      return e
+    end
+    e = e.parent
+  end
+  return nil
+end
+
+function realm.patches.target.on_gui_click(e)
+  local player = game.players[e.player_index]
+  if target_find_ancestor(e.element, 'target') then
+    local ann = target_find_ancestor(e.element, 'target')
+    if ann.layout.body.style.visible == nil then
+      ann.layout.body.style.visible = true
+    end
+    ann.layout.body.style.visible = not ann.layout.body.style.visible
+  end
+end
