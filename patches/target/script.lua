@@ -2,7 +2,7 @@ realm.patches.target = {
   commands = {}
 }
 
-function target_update_gui()
+function target_update_gui(force_extend)
   for _, p in pairs(game.players) do
     local root = mod_gui and mod_gui.get_frame_flow(p) or p.gui.left
     if not root.target then
@@ -20,11 +20,14 @@ function target_update_gui()
       root.target.style.visible = false
     else
       root.target.style.visible = true
+      local body_visible = true
       if root.target.layout.body then
+        body_visible = force_extend and true or root.target.layout.body.style.visible
         root.target.layout.body.destroy()
       end
       local body = root.target.layout.add{type='table', name='body', colspan=1}
       body.style.bottom_padding = 5
+      body.style.visible = body_visible
       for _, target in pairs(force_targets) do
         local item = body.add{type='flow', direction='horizontal'}
         local icon = item.add{type='sprite-button', name='icon', sprite=target_get_icon(target)}
@@ -212,7 +215,7 @@ function realm.patches.target.commands.target(e)
     })
 
     target_update_stat()
-    target_update_gui()
+    target_update_gui(true)
   elseif e.argv[1] == 'remove' then
     -- /target remove <index>
     local index = tonumber(e.argv[2])
@@ -230,7 +233,7 @@ function realm.patches.target.commands.target(e)
     end
     table.remove(global.targets[force.name], index)
 
-    target_update_gui()
+    target_update_gui(true)
   else
     print_back(e, {"patch-target.bad-command"})
     return
