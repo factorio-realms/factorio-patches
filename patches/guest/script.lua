@@ -101,6 +101,7 @@ realm.patches.guest.commands.guest = function(e)
   end
 
   guest_set_as_guest(player, true)
+  player.print{"patch-guest.you-have-been-set-as-guest"}
 
   game.print{"patch-guest.set-as-guest", player.name, e.commander}
 end
@@ -160,5 +161,6 @@ realm.patches.guest.on_player_created = function(e)
   if global.new_player_as_guest then
     local player = game.players[e.player_index]
     guest_set_as_guest(player, true)
+    player.print{"patch-guest.you-have-been-set-as-guest"}
   end
 end
