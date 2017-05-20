@@ -2,3 +2,11 @@ teleport
 statistics
 bot-start
 team					- set or adjust team
+io
+
+
+--------------------------------------------------------------------------------
+arrange all config to realm.config
+arrange all detailed help to /xxx help
+patch script
+
