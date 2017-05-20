@@ -190,19 +190,8 @@ function string.lines(self)
 end
 
 --------------------------------------------------------------------------------
--- after all, hack script variable access
-realm.patches.hacker = {
-  on_event = {}
-}
+-- rename script variable, to prevent patches accessing script variable directly
 
 script_orig = script
+script = nil
 
-script = {
-  on_init = script_orig.on_init,  -- in fact, we can never receive this
-  on_load = script_orig.on_load,
-  on_configuration_changed = function(f) realm.patches.hacker.on_configuration_changed = f end,
-  on_event = function(e, f) realm.patches.hacker.on_event[e] = f; remount_event(e) end,
-  generate_event_name = script_orig.generate_event_name,
-  get_event_handler = function(e) return realm.patches.hacker.on_event[e] end,
-  raise_event = script_orig.raise_event,
-}
