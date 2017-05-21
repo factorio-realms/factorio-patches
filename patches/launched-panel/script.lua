@@ -1,5 +1,6 @@
 realm.patches.launched_panel = {
-  commands = {}
+  commands = {},
+  priority = -4,  -- run after scenario script, to hide silo panel immediately
 }
 
 function launched_panel_format_count(n)
@@ -89,7 +90,5 @@ function realm.patches.launched_panel.on_gui_click(e)
 end
 
 function realm.patches.launched_panel.on_rocket_launched(e)
-  realm.next_tick(function()
-    launched_panel_update_gui()
-  end)
+  launched_panel_update_gui()
 end
