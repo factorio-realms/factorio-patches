@@ -98,6 +98,7 @@ realm.patches.guest.commands.guest = function(e)
   local player = game.players[e.argv[1]]
   if not player then
     print_back(e, {"patch-guest.player-not-exists", e.argv[1]})
+    return
   end
 
   guest_set_as_guest(player, true)
@@ -120,6 +121,7 @@ realm.patches.guest.commands.unguest = function(e)
   local player = game.players[e.argv[1]]
   if not player then
     print_back(e, {"patch-guest.player-not-exists", e.argv[1]})
+    return
   end
 
   guest_set_as_guest(player, false)
