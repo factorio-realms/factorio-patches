@@ -50,9 +50,9 @@ function realm.delay_tasks(tasks, dealer, final)
   local tq = global.realm.task_queue
   for _, data in pairs(tasks) do
     Queue.push(tq, {data=data, dealer=dealer})
-    if final then
-      Queue.push(tq, {dealer=final})
-    end
+  end
+  if final then
+    Queue.push(tq, {dealer=final})
   end
 end
 
