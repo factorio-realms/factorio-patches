@@ -74,7 +74,12 @@ function guest_ensure_init()
     for _, p in pairs(game.players) do
       local x = {}
       x.name = p.name
-      x.type = 'member'
+      -- be compatible with old version
+      if p.permission_group and p.permission_group.name == 'guest' then
+        x.type = 'guest'
+      else
+        x.type = 'member'
+      end
       global.guest_info[p.name] = x
     end
   end
@@ -99,30 +104,33 @@ function guest_notice(name)
 end
 
 function guest_set_as_guest(player_name, b, can_unlock)
-  local group = guest_get_guest_permission_group()
+  -- work around, non-admin cannot change group in script
+  realm.next_tick(function()
+    local group = guest_get_guest_permission_group()
 
-  guest_ensure_init()
-  global.guest_info[player_name] = global.guest_info[player_name] or {name=player_name}
-  if b then
-    global.guest_info[player_name].type = 'guest'
-    global.guest_info[player_name].can_unlock = can_unlock
+    guest_ensure_init()
+    global.guest_info[player_name] = global.guest_info[player_name] or {name=player_name}
+    if b then
+      global.guest_info[player_name].type = 'guest'
+      global.guest_info[player_name].can_unlock = can_unlock
 
-    if game.players[player_name] then
-      local player = game.players[player_name]
-      group.add_player(player)
-      player.tag = "[guest]"
+      if game.players[player_name] then
+        local player = game.players[player_name]
+        group.add_player(player)
+        player.tag = "[guest]"
+      end
+    else
+      global.guest_info[player_name].type = 'member'
+
+      if game.players[player_name] then
+        local player = game.players[player_name]
+        group.remove_player(player_name)
+        player.tag = ""
+      end
     end
-  else
-    global.guest_info[player_name].type = 'member'
 
-    if game.players[player_name] then
-      local player = game.players[player_name]
-      group.remove_player(player_name)
-      player.tag = ""
-    end
-  end
-
-  guest_notice(player_name)
+    guest_notice(player_name)
+  end)
 end
 
 function guest_get_list(t)
@@ -309,7 +317,8 @@ realm.patches.guest.on_player_joined_game = function(e)
   guest_ensure_init()
 
   local player = game.players[e.player_index]
-  if global.guest_info[player.name].notice_on_joined then
+  local info = global.guest_info[player.name]
+  if info and info.notice_on_joined then
     guest_notice(player.name)
   end
 end
