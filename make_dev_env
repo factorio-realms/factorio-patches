@@ -41,6 +41,7 @@ if [ ! -d a ]; then
 fi
 
 cd a
+ln -sf ../../framework/sha1.lua .
 ln -sf ../../framework/pre-patches.lua .
 ln -sf ../../framework/post-patches.lua .
 

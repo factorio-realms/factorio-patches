@@ -6,6 +6,8 @@ realm = {
 --------------------------------------------------------------------------------
 -- debug utils
 
+require('sha1')
+
 function dump_to_string(o)
   if type(o) == 'table' then
     local s = '{ '
