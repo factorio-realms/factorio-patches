@@ -63,6 +63,8 @@ function guest_get_guest_permission_group()
   group.set_allows_action(defines.input_action.edit_permission_group, true)
   -- drinving
   group.set_allows_action(defines.input_action.toggle_driving, true)
+  -- toggle show entity info
+  group.set_allows_action(defines.input_action.toggle_show_entity_info, true)
   return group
 end
 
