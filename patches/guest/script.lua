@@ -241,14 +241,14 @@ realm.patches.guest.commands["new-player-as-guest"] = function(e)
   end
 
   if global.new_player_as_guest then
-    print_back(e, {"patch-guest.new-player-as-guest", {"patch-guest.on"}})
+    game.print({"patch-guest.new-player-as-guest", {"patch-guest.on"}})
   else
-    print_back(e, {"patch-guest.new-player-as-guest", {"patch-guest.off"}})
+    game.print({"patch-guest.new-player-as-guest", {"patch-guest.off"}})
   end
   if global.new_player_unlock_password then
-    print_back(e, {"patch-guest.unlock-password-status", {"patch-guest.on"}})
+    game.print({"patch-guest.unlock-password-status", {"patch-guest.on"}})
   else
-    print_back(e, {"patch-guest.unlock-password-status", {"patch-guest.off"}})
+    game.print({"patch-guest.unlock-password-status", {"patch-guest.off"}})
   end
 end
 

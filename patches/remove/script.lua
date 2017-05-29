@@ -120,5 +120,5 @@ realm.patches.remove.commands["auto-remove"] = function(e)
     return
   end
   global.auto_remove_task[kind] = turn
-  print_back(e, {"patch-remove.auto-remove-" .. kind .. "-" .. status})
+  game.print({"patch-remove.auto-remove-" .. kind .. "-" .. status})
 end
