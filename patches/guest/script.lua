@@ -84,7 +84,11 @@ function guest_notice(name)
   guest_ensure_init()
   if game.players[name] and game.players[name].connected then
     if global.guest_info[name].type == 'guest' then
-      game.players[name].print{"patch-guest.you-have-been-set-as-guest"}
+      if global.guest_info[name].can_unlock then
+        game.players[name].print{"patch-guest.you-have-been-set-as-guest-can-unlock"}
+      else
+        game.players[name].print{"patch-guest.you-have-been-set-as-guest"}
+      end
     else
       game.players[name].print{"patch-guest.you-have-been-set-as-member"}
     end
@@ -207,6 +211,8 @@ realm.patches.guest.commands.members = function(e)
 end
 
 realm.patches.guest.commands["new-player-as-guest"] = function(e)
+  guest_ensure_init()
+
   if #e.argv ~= 0 and not e.by_admin then
     print_back(e, {"cant-run-command-not-admin", e.name})
     return
@@ -289,11 +295,11 @@ realm.patches.guest.on_player_created = function(e)
   end
 end
 
-realm.patches.guest.on_player_joined = function(e)
+realm.patches.guest.on_player_joined_game = function(e)
   guest_ensure_init()
 
   local player = game.players[e.player_index]
-  if global.guest_info[player.name].notice_on_join then
+  if global.guest_info[player.name].notice_on_joined then
     guest_notice(player.name)
   end
 end
