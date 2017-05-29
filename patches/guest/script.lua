@@ -220,7 +220,17 @@ realm.patches.guest.commands["new-player-as-guest"] = function(e)
 
   if e.argv[1] == "on" then
     global.new_player_as_guest = true
-    global.new_player_unlock_password = e.argv[2]
+    local pass = e.argv[2]
+    if pass then
+      global.new_player_unlock_password = {}
+      global.new_player_unlock_password.salt = tostring(math.random())
+      -- a weak protection
+      -- factorio lua is really too slow
+      -- at least, better then plain password
+      global.new_player_unlock_password.pass = sha1.hmac(global.new_player_unlock_password.salt, pass)
+    else
+      global.new_player_unlock_password = nil
+    end
   elseif e.argv[1] == "off" then
     global.new_player_as_guest = false
   elseif e.argv[1] == nil then
@@ -267,7 +277,7 @@ realm.patches.guest.commands.unlock = function(e)
     return
   end
 
-  if e.argv[1] ~= global.new_player_unlock_password then
+  if sha1.hmac(global.new_player_unlock_password.salt, e.argv[1]) ~= global.new_player_unlock_password.pass then
     print_back(e, {"patch-guest.password-error"})
     return
   end
