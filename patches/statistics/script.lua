@@ -10,13 +10,16 @@ function statistics_show_statistics(kind, stat)
   table.sort(a, function(a, b) return a[2] > b[2] end)
 
   local str = ""
-  for i = 1,20 do
+  for i = 1,50 do
     if not a[i] then break end
     str = str .. a[i][1] .. '(' .. a[i][2] .. '), '
   end
   str = str:gsub(', $', '')
 
   game.print({"patch-statistics.stat-by-" .. kind, str})
+  game.write_file("stat.txt", 
+      "by-" .. kind .. ": " .. str .. "\n",
+      true)
 end
 
 function statistics_update_progress(cur, total)
@@ -88,14 +91,20 @@ function realm.patches.statistics.commands.stat(e)
       statistics_update_progress(i, #chunks)
     end
   end, function()
+    statistics_update_progress(0, 0)
+
     game.print({"patch-statistics.banner"})
+    game.write_file("stat.txt", 
+        "Game stat(" .. game.tick .. "):\n",
+        true)
     statistics_show_statistics('surface', by_surface)
     statistics_show_statistics('force', by_force)
     statistics_show_statistics('user', by_user)
     statistics_show_statistics('name', by_name)
     statistics_show_statistics('type', by_type)
     statistics_show_statistics('resource', by_resource)
-    statistics_update_progress(0, 0)
+    game.write_file("stat.txt", "\n\n", true)
+    game.print({"patch-statistics.written-to-file"})
   end)
 
   local need_time = math.ceil(#chunks / 60 / 60 / game.speed * 10) / 10
