@@ -101,7 +101,7 @@ function translate_localized_string(ls)
     end
 
     x = x:gsub('__([0-9]+)__', function(idx)
-      return ls[tonumber(idx) + 1]
+      return translate_localized_string(ls[tonumber(idx) + 1])
     end)
 
     return x
