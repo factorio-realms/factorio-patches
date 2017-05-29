@@ -19,6 +19,32 @@ function statistics_show_statistics(kind, stat)
   game.print({"patch-statistics.stat-by-" .. kind, str})
 end
 
+function statistics_update_progress(cur, total)
+  for _, p in pairs(game.players) do
+    local root = mod_gui and mod_gui.get_frame_flow(p) or p.gui.left
+    if not root.statistics then
+      local statistics = root.add{type='frame', name='statistics'}
+      statistics.style.minimal_width = 230
+      statistics.style.top_padding = 4
+      statistics.style.bottom_padding = 4
+      local layout = statistics.add{type='table', name='layout', colspan=1}
+      local title = layout.add{type='label', name='title', caption={'patch-statistics.title'}}
+      title.style = 'caption_label_style'
+    end
+    if total == 0 then
+      root.statistics.style.visible = false
+    else
+      root.statistics.style.visible = true
+      if root.statistics.layout.body then
+        root.statistics.layout.body.destroy()
+      end
+      local body = root.statistics.layout.add{type='table', name='body', colspan=1}
+      body.style.bottom_padding = 4
+      body.add{type='progressbar', size=168, value=cur/total}
+    end
+  end
+end
+
 function realm.patches.statistics.commands.stat(e)
   if not e.by_admin then
     print_back(e, {"patch-statistics.not-allowed"})
@@ -38,7 +64,8 @@ function realm.patches.statistics.commands.stat(e)
       table.insert(chunks, {surface=s.name, x=c.x, y=c.y})
     end
   end
-  realm.delay_tasks(chunks, function(c)
+  statistics_update_progress(0, #chunks)
+  realm.delay_tasks(chunks, function(c, i)
     local s = game.surfaces[c.surface]
     if not s then
       -- surface may deleted during task
@@ -57,6 +84,9 @@ function realm.patches.statistics.commands.stat(e)
         by_resource[e.name] = (by_resource[e.name] or 0) + e.amount
       end
     end
+    if i % 60 == 0 then
+      statistics_update_progress(i, #chunks)
+    end
   end, function()
     game.print({"patch-statistics.banner"})
     statistics_show_statistics('surface', by_surface)
@@ -65,6 +95,7 @@ function realm.patches.statistics.commands.stat(e)
     statistics_show_statistics('name', by_name)
     statistics_show_statistics('type', by_type)
     statistics_show_statistics('resource', by_resource)
+    statistics_update_progress(0, 0)
   end)
 
   local need_time = math.ceil(#chunks / 60 / 60 / game.speed * 10) / 10

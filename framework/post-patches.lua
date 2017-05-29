@@ -48,8 +48,8 @@ end
 
 function realm.delay_tasks(tasks, dealer, final)
   local tq = global.realm.task_queue
-  for _, data in pairs(tasks) do
-    Queue.push(tq, {data=data, dealer=dealer})
+  for idx, data in ipairs(tasks) do
+    Queue.push(tq, {data=data, dealer=dealer, index=idx})
   end
   if final then
     Queue.push(tq, {dealer=final})
@@ -65,7 +65,7 @@ realm.patches.framework.on_tick_real = function(e)
   end
   local task = Queue.pop(global.realm.task_queue)
   if task then
-    task.dealer(task.data)
+    task.dealer(task.data, task.index)
   end
 end
 
