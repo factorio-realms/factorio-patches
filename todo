@@ -10,3 +10,9 @@ arrange all config to realm.config
 arrange all detailed help to /xxx help
 patch script
 
+
+target
+	new target type: produce items per minutes
+
+launch_panel
+	change text color
