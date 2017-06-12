@@ -16,3 +16,9 @@ target
 
 launch_panel
 	change text color
+
+stat
+	Cannot join game when stat
+
+guest
+	guest cannot alt view on old map
