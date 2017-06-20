@@ -85,17 +85,32 @@ function guest_ensure_init()
   end
 end
 
+function guest_get_player_by_name(name)
+  -- work around bug: if player name only contains number, game.players[name] return nil
+  if name:match("^[0-9]*$") then
+    for _, p in pairs(game.players) do
+      if p.name == name then
+        return p
+      end
+    end
+    return nil
+  else
+    return game.players[name]
+  end
+end
+
 function guest_notice(name)
   guest_ensure_init()
-  if game.players[name] and game.players[name].connected then
+  local player = guest_get_player_by_name(name)
+  if player and player.connected then
     if global.guest_info[name].type == 'guest' then
       if global.guest_info[name].can_unlock then
-        game.players[name].print{"patch-guest.you-have-been-set-as-guest-can-unlock"}
+        player.print{"patch-guest.you-have-been-set-as-guest-can-unlock"}
       else
-        game.players[name].print{"patch-guest.you-have-been-set-as-guest"}
+        player.print{"patch-guest.you-have-been-set-as-guest"}
       end
     else
-      game.players[name].print{"patch-guest.you-have-been-set-as-member"}
+      player.print{"patch-guest.you-have-been-set-as-member"}
     end
     global.guest_info[name].notice_on_joined = false
   else
@@ -114,17 +129,17 @@ function guest_set_as_guest(player_name, b, can_unlock)
       global.guest_info[player_name].type = 'guest'
       global.guest_info[player_name].can_unlock = can_unlock
 
-      if game.players[player_name] then
-        local player = game.players[player_name]
+      local player = guest_get_player_by_name(player_name)
+      if player then
         group.add_player(player)
         player.tag = "[guest]"
       end
     else
       global.guest_info[player_name].type = 'member'
 
-      if game.players[player_name] then
-        local player = game.players[player_name]
-        group.remove_player(player_name)
+      local player = guest_get_player_by_name(player_name)
+      if player then
+        group.remove_player(player)
         player.tag = ""
       end
     end
@@ -186,9 +201,10 @@ realm.patches.guest.commands.guests = function(e)
   print_back(e, {"patch-guest.guests-banner", #players})
   for _, p in ipairs(players) do
     local st, cu
-    if not game.players[p.name] then
+    local player = guest_get_player_by_name(p.name)
+    if not player then
       st = {"patch-guest.not-in-game"}
-    elseif game.players[p.name].connected then
+    elseif player.connected then
       st = {"patch-guest.online"}
     else
       st = {"patch-guest.offline"}
@@ -207,9 +223,10 @@ realm.patches.guest.commands.members = function(e)
   print_back(e, {"patch-guest.members-banner", #players})
   for _, p in ipairs(players) do
     local st, cu
-    if not game.players[p.name] then
+    local player = guest_get_player_by_name(p.name)
+    if not player then
       st = {"patch-guest.not-in-game"}
-    elseif game.players[p.name].connected then
+    elseif player.connected then
       st = {"patch-guest.online"}
     else
       st = {"patch-guest.offline"}
