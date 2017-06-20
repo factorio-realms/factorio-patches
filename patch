@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -e
+
+gen_realm_lua() {
+	echo "require('locale_en')"
+	echo "require('pre-patches')"
+	echo ""
+	ls patch-*.lua | sed "s/\(.*\)\.lua/require('\1')/"
+	echo ""
+	echo "require('post-patches')"
+}
+
+if [ "$#" != "1" ]; then
+	echo "./patch <path-to-save.zip>"
+	exit 1
+fi
+
+rm -rf tmp
+mkdir tmp
+
+unzip "$1" -d tmp
+
+cd tmp/*
+
+# copy locales
+cp -r ../../framework/locale .
+cp -r ../../patches/*/locale .
+
+# copy scripts
+cp ../../framework/*.lua .
+ls ../../patches/*/script.lua | sed 's#.*patches/\([^/]*\)/script.lua#cp "&" "patch-\1.lua"#' | sh
+
+# generate locale_en.lua
+../../scripts/locale_to_lua locale/en LOCALE_EN > locale_en.lua
+
+# generate realm.lua
+gen_realm_lua > realm.lua
+
+# patch script.lua
+if ! grep -q 5bee6642 control.lua; then
+	sed -i '1 s/^/require("realm") -- 5bee6642\n\n/' control.lua
+fi
+
+# reset game
+mv level-init.dat level.dat
+
+# repack
+cd ..
+zip -r "$(echo *).zip" *
+
+mv "$1" "$1.bak"
+mv *.zip "$1"
