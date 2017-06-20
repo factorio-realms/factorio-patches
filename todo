@@ -5,6 +5,10 @@ team					- set or adjust team
 io
 
 
+bug:
+	New player can not see announcement
+
+
 --------------------------------------------------------------------------------
 arrange all config to realm.config
 arrange all detailed help to /xxx help
@@ -16,9 +20,6 @@ target
 
 launch_panel
 	change text color
-
-stat
-	Cannot join game when stat
 
 guest
 	guest cannot alt view on old map
