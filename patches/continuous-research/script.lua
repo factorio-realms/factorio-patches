@@ -11,9 +11,9 @@ function realm.patches.continuous_research.on_research_finished(e)
   local force = research.force;
 
   if not research.researched then
-    realm.next_tick(function()
-      force.current_research = research.name
-    end)
+    realm.next_tick(function(research_name)
+      force.current_research = research_name
+    end, research.name)
   end
 end
 

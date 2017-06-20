@@ -48,18 +48,61 @@ function statistics_update_progress(cur, total)
   end
 end
 
+function statistics_update(c, i, ctx)
+  local s = game.surfaces[c.surface]
+  if not s then
+    -- surface may deleted during task
+    return
+  end
+  local es = s.find_entities({{c.x * 32, c.y * 32}, {c.x * 32 + 32, c.y * 32 + 32}})
+  for _, e in ipairs(es) do
+    ctx.by_surface[s.name] = (ctx.by_surface[s.name] or 0) + 1
+    ctx.by_force[e.force.name] = (ctx.by_force[e.force.name] or 0) + 1
+    if e.last_user then
+      ctx.by_user[e.last_user.name] = (ctx.by_user[e.last_user.name] or 0) + 1
+    end
+    ctx.by_type[e.type] = (ctx.by_type[e.type] or 0) + 1
+    ctx.by_name[e.name] = (ctx.by_name[e.name] or 0) + 1
+    if e.type == 'resource' then
+      ctx.by_resource[e.name] = (ctx.by_resource[e.name] or 0) + e.amount
+    end
+  end
+  if i % 60 == 0 then
+    statistics_update_progress(i, #ctx.chunks)
+  end
+end
+
+function statistics_final(data, _, ctx)
+    statistics_update_progress(0, 0)
+
+    game.print({"patch-statistics.banner"})
+    game.write_file("stat.txt", 
+        "Game stat(" .. game.tick .. "):\n",
+        true)
+    statistics_show_statistics('surface', ctx.by_surface)
+    statistics_show_statistics('force', ctx.by_force)
+    statistics_show_statistics('user', ctx.by_user)
+    statistics_show_statistics('name', ctx.by_name)
+    statistics_show_statistics('type', ctx.by_type)
+    statistics_show_statistics('resource', ctx.by_resource)
+    game.write_file("stat.txt", "\n\n", true)
+    game.print({"patch-statistics.written-to-file"})
+end
+
 function realm.patches.statistics.commands.stat(e)
   if not e.by_admin then
     print_back(e, {"patch-statistics.not-allowed"})
     return
   end
 
-  local by_surface = {}
-  local by_force = {}
-  local by_user = {}
-  local by_type = {}
-  local by_name = {}
-  local by_resource = {}
+  local stat = {
+    by_surface = {},
+    by_force = {},
+    by_user = {},
+    by_type = {},
+    by_name = {},
+    by_resource = {},
+  }
 
   local chunks = {}
   for _, s in pairs(game.surfaces) do
@@ -68,44 +111,9 @@ function realm.patches.statistics.commands.stat(e)
     end
   end
   statistics_update_progress(0, #chunks)
-  realm.delay_tasks(chunks, function(c, i)
-    local s = game.surfaces[c.surface]
-    if not s then
-      -- surface may deleted during task
-      return
-    end
-    local es = s.find_entities({{c.x * 32, c.y * 32}, {c.x * 32 + 32, c.y * 32 + 32}})
-    for _, e in ipairs(es) do
-      by_surface[s.name] = (by_surface[s.name] or 0) + 1
-      by_force[e.force.name] = (by_force[e.force.name] or 0) + 1
-      if e.last_user then
-        by_user[e.last_user.name] = (by_user[e.last_user.name] or 0) + 1
-      end
-      by_type[e.type] = (by_type[e.type] or 0) + 1
-      by_name[e.name] = (by_name[e.name] or 0) + 1
-      if e.type == 'resource' then
-        by_resource[e.name] = (by_resource[e.name] or 0) + e.amount
-      end
-    end
-    if i % 60 == 0 then
-      statistics_update_progress(i, #chunks)
-    end
-  end, function()
-    statistics_update_progress(0, 0)
+  stat.chunks = chunks
 
-    game.print({"patch-statistics.banner"})
-    game.write_file("stat.txt", 
-        "Game stat(" .. game.tick .. "):\n",
-        true)
-    statistics_show_statistics('surface', by_surface)
-    statistics_show_statistics('force', by_force)
-    statistics_show_statistics('user', by_user)
-    statistics_show_statistics('name', by_name)
-    statistics_show_statistics('type', by_type)
-    statistics_show_statistics('resource', by_resource)
-    game.write_file("stat.txt", "\n\n", true)
-    game.print({"patch-statistics.written-to-file"})
-  end)
+  realm.delay_tasks(chunks, statistics_update, statistics_final, stat)
 
   local need_time = math.ceil(#chunks / 60 / 60 / game.speed * 10) / 10
   game.print({"patch-statistics.task-posted", need_time})

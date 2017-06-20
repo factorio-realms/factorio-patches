@@ -41,31 +41,33 @@ end
 --------------------------------------------------------------------------------
 -- async framework
 
-function realm.next_tick(cb)
+-- factorio do not support enclosure, so pass arguments in
+-- I don't not why factorio do not support remain arguments
+function realm.next_tick(cb, a, b, c, d, e, f, g, h)
   global.realm.next_tick = global.realm.next_tick or {}
-  table.insert(global.realm.next_tick, cb)
+  table.insert(global.realm.next_tick, {cb, {a,b,c,d,e,f,g,h}})
 end
 
-function realm.delay_tasks(tasks, dealer, final)
+function realm.delay_tasks(tasks, dealer, final, a, b, c, d, e, f, g, h)
   local tq = global.realm.task_queue
   for idx, data in ipairs(tasks) do
-    Queue.push(tq, {data=data, dealer=dealer, index=idx})
+    Queue.push(tq, {data=data, dealer=dealer, index=idx, ctx={a,b,c,d,e,f,g,h}})
   end
   if final then
-    Queue.push(tq, {dealer=final})
+    Queue.push(tq, {dealer=final, ctx={a,b,c,d,e,f,g,h}})
   end
 end
 
 realm.patches.framework.on_tick_real = function(e)
   if global.realm.next_tick then
-    for _, impl in pairs(global.realm.next_tick) do
-      impl()
+    for _, x in pairs(global.realm.next_tick) do
+      x[1](unpack(x[2]))
     end
     global.realm.next_tick = nil
   end
   local task = Queue.pop(global.realm.task_queue)
   if task then
-    task.dealer(task.data, task.index)
+    task.dealer(task.data, task.index, unpack(task.ctx))
   end
 end
 

@@ -120,7 +120,7 @@ end
 
 function guest_set_as_guest(player_name, b, can_unlock)
   -- work around, non-admin cannot change group in script
-  realm.next_tick(function()
+  realm.next_tick(function(player_name, b, can_unlock)
     local group = guest_get_guest_permission_group()
 
     guest_ensure_init()
@@ -145,7 +145,7 @@ function guest_set_as_guest(player_name, b, can_unlock)
     end
 
     guest_notice(player_name)
-  end)
+  end, player_name, b, can_unlock)
 end
 
 function guest_get_list(t)
